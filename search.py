@@ -16,8 +16,11 @@
 In search.py, you will implement generic search algorithms which are called by
 Pacman agents (in searchAgents.py).
 """
+from Tools.scripts.fixcid import CommentEnd
 
 import util
+from util import PriorityQueue
+
 
 class SearchProblem:
     """
@@ -87,10 +90,10 @@ def depthFirstSearch(problem):
     print("Start's successors:", problem.getSuccessors(problem.getStartState()))
     """
     "*** YOUR CODE HERE ***"
-    currentNode = problem.getStartState()
+    startNode = problem.getStartState()
     Expanded = set()
     fringe = util.Stack()  #  Stack
-    fringe.push((currentNode, []))  #add node and path
+    fringe.push((startNode, []))  #add node and path
 
     while not fringe.isEmpty():
         currentNode, path = fringe.pop()
@@ -119,10 +122,10 @@ def depthFirstSearch(problem):
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
     "*** YOUR CODE HERE ***"
-    currentNode = problem.getStartState()
+    startNode = problem.getStartState()
     Expanded = set()
     queue = util.Queue()
-    queue.push((currentNode, []))
+    queue.push((startNode, []))
     while queue:
         currentNode, path = queue.pop()
         if problem.isGoalState(currentNode):
@@ -142,10 +145,10 @@ def breadthFirstSearch(problem):
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
     "*** YOUR CODE HERE ***"
-    currentNode = problem.getStartState()
+    startNode = problem.getStartState()
     Expanded = set()
     pq = util.PriorityQueue()
-    pq.push((currentNode,[]),0)
+    pq.push((startNode,[]),0)
 
     while not pq.isEmpty():
         currentNode, path = pq.pop()  # pop
@@ -163,10 +166,10 @@ def uniformCostSearch(problem):
                 newPath = path + [action]
                 totalCost = problem.getCostOfActions(newPath)
 
-                # 将后继节点和新路径推入优先队列
+                # push to priority queue
                 pq.push((successor, newPath), totalCost)
 
-    return []  # 如果没有找到目标，返回空列表
+    return []
     util.raiseNotDefined()
 
 def nullHeuristic(state, problem=None):
@@ -179,6 +182,30 @@ def nullHeuristic(state, problem=None):
 def aStarSearch(problem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
     "*** YOUR CODE HERE ***"
+    startNode = problem.getStartState()
+    Expanded = set()
+    pq = util.PriorityQueue()
+    pq.push((startNode, []), 0)
+
+    costFromstart={startNode:0}#recode g cost
+    while not pq.isEmpty():
+        currentNode, path = pq.pop()  # pop
+
+        if problem.isGoalState(currentNode):  # check current node is goal node
+            return path
+
+        if currentNode not in Expanded:  # Mark the node as expanded
+            Expanded.add(currentNode)
+
+            for successor, action, cost in problem.getSuccessors(currentNode):
+                newPath = path + [action]
+                newCostFromStart=costFromstart[currentNode]+cost #calculate g(n)
+                if successor not in costFromstart or newCostFromStart<costFromstart[successor]:
+                    costFromstart[successor]= newCostFromStart
+                    Priority =newCostFromStart + heuristic(successor, problem)  # calculate h(n) Heuristic cost
+                    pq.push((successor,newPath),Priority)
+
+    return []
     util.raiseNotDefined()
 
 
