@@ -119,11 +119,54 @@ def depthFirstSearch(problem):
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
     "*** YOUR CODE HERE ***"
+    currentNode = problem.getStartState()
+    Expanded = set()
+    queue = util.Queue()
+    queue.push((currentNode, []))
+    while queue:
+        currentNode, path = queue.pop()
+        if problem.isGoalState(currentNode):
+            return path
+        if currentNode not in Expanded:
+            Expanded.add(currentNode)
+            for successor, action, cost in problem.getSuccessors(currentNode):
+                if successor not in Expanded:
+                    newPath = path + [action]
+                    queue.push((successor, newPath))
+    return []
+
+
+
     util.raiseNotDefined()
 
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
     "*** YOUR CODE HERE ***"
+    currentNode = problem.getStartState()
+    Expanded = set()
+    pq = util.PriorityQueue()
+    pq.push((currentNode,[]),0)
+
+    while not pq.isEmpty():
+        currentNode, path = pq.pop()  # pop
+
+
+        if problem.isGoalState(currentNode):#check current node is goal node
+            return path
+
+
+        if currentNode not in Expanded:# Mark the node as expanded
+            Expanded.add(currentNode)
+
+
+            for successor, action, cost in problem.getSuccessors(currentNode):
+                newPath = path + [action]
+                totalCost = problem.getCostOfActions(newPath)
+
+                # 将后继节点和新路径推入优先队列
+                pq.push((successor, newPath), totalCost)
+
+    return []  # 如果没有找到目标，返回空列表
     util.raiseNotDefined()
 
 def nullHeuristic(state, problem=None):
