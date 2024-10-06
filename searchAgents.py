@@ -295,6 +295,7 @@ class CornersProblem(search.SearchProblem):
         space)
         """
         "*** YOUR CODE HERE ***"
+        return (self.startingPosition, (False, False, False, False))
         util.raiseNotDefined()
 
     def isGoalState(self, state):
@@ -302,6 +303,7 @@ class CornersProblem(search.SearchProblem):
         Returns whether this search state is a goal state of the problem.
         """
         "*** YOUR CODE HERE ***"
+        return all(state[1])
         util.raiseNotDefined()
 
     def getSuccessors(self, state):
@@ -316,18 +318,32 @@ class CornersProblem(search.SearchProblem):
         """
 
         successors = []
+        currentPosition, cornersVisited = state
         for action in [Directions.NORTH, Directions.SOUTH, Directions.EAST, Directions.WEST]:
-            # Add a successor state to the successor list if the action is legal
-            # Here's a code snippet for figuring out whether a new position hits a wall:
-            #   x,y = currentPosition
-            #   dx, dy = Actions.directionToVector(action)
-            #   nextx, nexty = int(x + dx), int(y + dy)
-            #   hitsWall = self.walls[nextx][nexty]
+            # Get Pacman's current position coordinates
+            x, y = currentPosition  # Corrected to use currentPosition directly
+            dx, dy = Actions.directionToVector(action)  # Get the direction vector
+            nextx, nexty = int(x + dx), int(y + dy)  # Calculate the next position
 
-            "*** YOUR CODE HERE ***"
+            # Check if the next position hits a wall
+            if not self.walls[nextx][nexty]:
+                nextPosition = (nextx, nexty)
 
-        self._expanded += 1 # DO NOT CHANGE
+                # Copy the visited corners to update it for the new position
+                newCornersVisited = list(cornersVisited)  # Make a copy of the cornersVisited list
+
+                # Check if the new position is a corner
+                if nextPosition in self.corners:
+                    cornerIndex = self.corners.index(nextPosition)  # Find the index of the corner
+                    newCornersVisited[cornerIndex] = True  # Mark the corner as visited
+
+                # Create the new state with updated corner visit info
+                nextState = (nextPosition, tuple(newCornersVisited))  # Convert list to tuple for immutability
+                successors.append((nextState, action, 1))  # Add the successor to the list
+
+        self._expanded += 1  # Increment the count of expanded nodes
         return successors
+
 
     def getCostOfActions(self, actions):
         """
